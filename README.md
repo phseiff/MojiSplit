@@ -96,7 +96,7 @@ The images I used for demonstration purposes in this repository are the followin
 
 ## Code used
 
-I used code from the following StackOverflow-answers:
+I used code from the following StackOverflow-answers and blog posts:
 * [This](https://stackoverflow.com/a/29758578) answer on how to get masks for the individual objects in the picture.
 * [This](https://stackoverflow.com/questions/13648943/masking-an-images-alpha-in-imagemagick) answer on how to mask (I didn't take code from it, though).
 * [This](https://stackoverflow.com/a/27194202) answer on how to convert a color to alpha (including its code).
