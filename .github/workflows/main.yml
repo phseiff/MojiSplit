@@ -1,0 +1,23 @@
+name: Split Emoji Sheets
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Install and Build 🔧
+        run: |
+          sudo apt-get install optipng
+          /bin/bash commands.sh
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: finished-emojis
+          FOLDER: .
