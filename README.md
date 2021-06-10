@@ -6,7 +6,7 @@ You need to separate all of them from each other (which might be more difficult 
 you need to crop them all to 512px (or whatever size your system needs);
 and you might need to make their background transparent and not forget to have a 16px (or smth) margin around the image.
 
-clipart-sheet-to-emoji-set automates this process for you - you give it some images with an even background and of one or more doodles, cliparts, icons or emojis on it, and it takes on the tasks detailed above for you.
+MojiSplit automates this process for you - you give it some images with an even background and of one or more doodles, cliparts, icons or emojis on it, and it takes on the tasks detailed above for you.
 The result is a folder full of images of the individual elements in good emoji-size with good emoji-padding.
 
 <details><summary>Example of an image sheet (input)</summary>
