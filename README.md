@@ -34,6 +34,8 @@ The result is a folder full of images of the individual elements in good emoji-s
 * transparent background.
 * 512x512 px large (a power of two and exactly the size that Signal messanger wants for stickers, coincidentally).
 * 16px padding between their border and the border of their contents.
+
+(there are options to customize most of this)
 </details>
 
 ## Installation
