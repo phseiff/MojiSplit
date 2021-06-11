@@ -6,7 +6,7 @@ You need to separate all of them from each other (which might be more difficult 
 you need to crop them all to 512px (or whatever size your system needs);
 and you might need to make their background transparent and not forget to have a 16px (or smth) margin around the image.
 
-MojiSplit automates this process for you - you give it some images with an even background and of one or more doodles, cliparts, icons or emojis on it, and it takes on the tasks detailed above for you.
+MojiSplit automates this process for you - you give it some images with an even background and with one or more doodles, cliparts, icons or emojis on it, and it takes on the tasks detailed above for you.
 The result is a folder full of images of the individual elements in good emoji-size with good emoji-padding.
 
 <details><summary>Example of an image sheet (input)</summary>
@@ -85,6 +85,34 @@ otherwise, the resulting images wil be stored in the directory `out` (will be cr
   Specifies a color that will also be replaced with transparency in the end, but which will still be counted as non-transparent when cutting the image.<br/>
   You can use this color to show the tool that some non-connected parts of your image belong together by pre-editing the image to give them a connecting background in this color.
   
+* `--pxsize <size_as_integer>`
+
+  Allows you to customize the width and height of the resulting images.<br/>
+  Defaults to 512px.
+
+* `--padding <padding_as_integer>`
+
+  Allows you to customize the padding between the resulting images' content and their border.<br/>
+  Defaults to 16px.
+  
+* `--maxsize <max_size_of_the_resulting_images>`
+
+  Some applications don't require a specific image width and height, but have a specific file size limit for their emojis.
+  This option allows you to specify a max file size, and every output image will be scaled down and optimized to fit this file size.
+  
+  Note that said optimization has `optipng` as an optional dependency (as simple as `sudo apt-get install optipng` on most systems);
+  otherwise, the max size will be ensured by resizing without any additional optimizations.
+  
+  Values consist of an integer and `KB`, `MB` or `GB` (without any space between number and unit) or no unit at all, which indicates that they are byte measurements.
+
+  This step is optimized to run in <code>O(log<sub>2</sub> n)</code>, where `n` is the size of the image for which we want to find the biggest pixel size that fits within a given file size, in case you are wondering about the performance of this.
+<!--
+* `--keep-holes-filled-with-bg-color <true or false>`
+
+  If set to `true` (the default is `false`), this option ensures that "holes" within emojis that are filled with the background color (as specified by `--background`) keep this background color rather than become transparent.<br/>
+  This can be useful for example  if you have black line art on an even white background, and you want every part of the background to be transparent except for the parts surrounded by lines (the "inside" of the lineart).
+  The example image further up the page, for example, would've profited greatly from this.
+-->
 **Please note**:
 
 The tool can take some minutes to run;
