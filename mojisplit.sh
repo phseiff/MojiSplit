@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# Make temp dir:
-temp=$(mktemp -d 2>/dev/null || mktemp -d -t 'temp')
-function cleanup {
-  rm -rf "$WORK_DIR"
-}
-trap cleanup EXIT
-
 # Function to split an individual emoji sheet:
 
 split_individual_emoji_sheet() {
@@ -15,8 +8,6 @@ split_individual_emoji_sheet() {
   # Input values:
   INPUTIMAGE=$1  # <- The image we want to convert
   OUT_DIR=$2  # <- The dir we want to convert into
-  BG_COLOR=$3
-  BG_COLOR2=$4
 
   INPUTNAME="$(basename $INPUTIMAGE)";
   INPUTNAME="$(cut -d'.' -f1 <<<$INPUTNAME)";
@@ -83,16 +74,21 @@ split_individual_emoji_sheet() {
   # We make a simplified image with two colors; red for things that aren't part of an emoji, and white for
   #  things that are (including holes in emojis):
 
-  # Make a mask that's blue wherever it isn't intransparent:
-  convert $INPUTIMAGE -fill blue -colorize 100 $temp/only_alpha.png
-  # Make the image larger:
-  increase_size_by_10px $temp/only_alpha.png
-  # Make every transparent part as long as it's connected to the border red:
-  fill_red_from_the_borders $temp/only_alpha.png
-  # Give the image back it's original size:
-  decrease_size_by_10px $temp/only_alpha.png
-  # Make the blue parts white:
-  convert $temp/only_alpha.png -fuzz 60% -fill white -opaque blue $temp/only_alpha.png
+  if [[ "$KEEP_HOLES" == "false" ]]; then
+    # Make a mask that's blue wherever it isn't intransparent:
+    convert $INPUTIMAGE -fill blue -colorize 100 $temp/only_alpha.png
+    # Make the image larger:
+    increase_size_by_10px $temp/only_alpha.png
+    # Make every transparent part as long as it's connected to the border red:
+    fill_red_from_the_borders $temp/only_alpha.png
+    # Give the image back it's original size:
+    decrease_size_by_10px $temp/only_alpha.png
+    # Make the blue parts white:
+    convert $temp/only_alpha.png -fuzz 60% -fill white -opaque blue $temp/only_alpha.png
+  elif [[ "$KEEP_HOLES" == "true" ]]; then
+    pass
+    # ToDo: Make this
+  fi
 
   # We now divert the image into multiple masks for individual emojis:
 
@@ -127,9 +123,10 @@ split_individual_emoji_sheet() {
       convert $pic -background none -gravity center -extent "${new_dim}x${new_dim}" +repage $pic
   }
 
-  # Go over all masks and make an image from each of them:
-  seg=0
-  for f in $temp/mask_*png; do
+  # Function to make an image from a mask:
+  mask_to_image() {
+     f=$1
+     factor=$2
      # make the image:
      trim_coordinates=$(convert $f -format "%@" info:)
      convert $INPUTIMAGE -background none -crop "$trim_coordinates" $OUT_DIR/$INPUTNAME.$seg.png
@@ -141,11 +138,53 @@ split_individual_emoji_sheet() {
      # make it a square:
      squarize "$OUT_DIR/$INPUTNAME.$seg.png";
      # resize to the size we want:
-     convert -background none "$OUT_DIR/$INPUTNAME.$seg.png" -resize 480x480\! "$OUT_DIR/$INPUTNAME.$seg.png";
+     size_minus_padding=$(((PXSIZE - PADDING * 2) * factor / PXSIZE))
+     size=$((PXSIZE * factor / PXSIZE))
+     echo "size minus padding: $size_minus_padding; size: $size"
+     convert -background none "$OUT_DIR/$INPUTNAME.$seg.png" -resize "${size_minus_padding}x${size_minus_padding}!" "$OUT_DIR/$INPUTNAME.$seg.png";
      # add margin:
-     convert -background none "$OUT_DIR/$INPUTNAME.$seg.png" -gravity center -extent "512x512"  "$OUT_DIR/$INPUTNAME.$seg.png";
+     convert -background none "$OUT_DIR/$INPUTNAME.$seg.png" -gravity center -extent "${size}x${size}"  "$OUT_DIR/$INPUTNAME.$seg.png";
+  }
 
-     ((seg++))
+  # optimize image if possible:
+  optimize_if_possible() {
+    if command -v optipng &> /dev/null; then
+      optipng -o7 -quiet "$1"
+    fi
+  }
+
+  # Go over all masks and make an image from each of them:
+  seg=0
+  for f in "$temp"/mask_*png; do
+    if [[ "$MAXSIZE" == "None" ]]; then
+      mask_to_image "$f" "$PXSIZE"
+    else
+      lower_size_bound=1
+      upper_size_bound="$PXSIZE"
+      while true; do
+        size_to_try=$(((upper_size_bound + lower_size_bound) / 2))
+        echo "Trying image size $size_to_try for $f."
+        mask_to_image "$f" "$size_to_try"
+        optimize_if_possible "$OUT_DIR/$INPUTNAME.$seg.png"
+
+        filesize=$(stat -c%s "$OUT_DIR/$INPUTNAME.$seg.png")
+        echo "Resulting file size is $filesize."
+
+        if (( "$filesize" <= "$MAXSIZE" )); then
+          lower_size_bound="$size_to_try"
+        elif (( "$filesize" > "$MAXSIZE" )); then
+          upper_size_bound="$size_to_try"
+        fi
+        if (( upper_size_bound == lower_size_bound + 1 )); then
+          echo "Found a fitting size!"
+          mask_to_image "$f" "$lower_size_bound"
+          optimize_if_possible "$OUT_DIR/$INPUTNAME.$seg.png"
+          break
+        fi
+      done
+    fi
+
+    ((seg++))
   done
 }
 
@@ -155,6 +194,10 @@ split_individual_emoji_sheet() {
 POSITIONAL=()
 BG_COLOR=None
 BG_COLOR2=None
+PXSIZE=512
+PADDING=16
+MAXSIZE=None
+KEEP_HOLES=false
 while [[ $# -gt 0 ]]; do
 key="$1"
 case $key in
@@ -165,6 +208,26 @@ case $key in
     ;;
     -bg2|--background2)
     BG_COLOR2="$2"
+    shift
+    shift
+    ;;
+    --pxsize)
+    PXSIZE="$2"
+    shift
+    shift
+    ;;
+    --padding)
+    PADDING="$2"
+    shift
+    shift
+    ;;
+    --maxsize)
+    MAXSIZE="$2"
+    shift
+    shift
+    ;;
+    --keep-holes-filled-with-bg-color)
+    KEEP_HOLES="true"
     shift
     shift
     ;;
@@ -182,6 +245,24 @@ fi
 INP_RAW="${POSITIONAL[0]}"
 OUT_RAW="${POSITIONAL[1]}"
 
+# Convert maxsize to a byte number:
+if [ "$MAXSIZE" != "None" ]; then
+  if [[ "$MAXSIZE" == *B ]]; then
+    MAXSIZE_UNIT=${MAXSIZE: -2}
+    MAXSIZE=${MAXSIZE:: 2}
+    if [[ "$MAXSIZE_UNIT" == "GB" ]]; then
+      MAXSIZE=$((MAXSIZE * (10**9)))
+    elif [[ "$MAXSIZE_UNIT" == "MB" ]]; then
+      MAXSIZE=$((MAXSIZE * (10**6)))
+    elif [[ "$MAXSIZE_UNIT" == "KB" ]]; then
+      MAXSIZE=$((MAXSIZE * (10**3)))
+    else
+      echo "$MAXSIZE_UNIT is not a valid unit for a file size."
+      exit 1
+    fi
+  fi
+fi
+
 # find out if the output is a dir or an image:
 if [[ ( "$OUT_RAW" == *.png ) || ( "$OUT_RAW" == *.PNG ) ]]; then
   # use a temp dir and remember we want to make a montage from it:
@@ -189,12 +270,27 @@ if [[ ( "$OUT_RAW" == *.png ) || ( "$OUT_RAW" == *.PNG ) ]]; then
   OUT_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'temp')
   function cleanup2 {
     cleanup
-    rm -rf "OUT_DIR"
+    rm -rf "$OUT_DIR"
   }
   trap cleanup2 EXIT
 else
   OUT_DIR=$OUT_RAW
   MAKE_MONTAGE=false
+fi
+
+# Make temp dir & cleanup function:
+temp="$OUT_DIR/temp"
+if [[ "$MAKE_MONTAGE" == "false" ]]; then
+  function cleanup {
+    rm -r "$temp"
+  }
+  trap cleanup EXIT
+else
+  function cleanup {
+    rm -r "$temp"
+    rm -r "$OUT_DIR"
+  }
+  trap cleanup EXIT
 fi
 
 # empty the output dir:
@@ -207,12 +303,12 @@ mkdir "$OUT_DIR"
 
 if test -f "$INP_RAW"; then
    # one inp file:
-   split_individual_emoji_sheet $INP_RAW $OUT_DIR $BG_COLOR $BG_COLOR2
+   split_individual_emoji_sheet $INP_RAW $OUT_DIR
 
 elif test -d "$INP_RAW"; then
    # one input folder:
    for f in $INP_RAW/*; do
-     split_individual_emoji_sheet $f $OUT_DIR $BG_COLOR $BG_COLOR2
+     split_individual_emoji_sheet $f $OUT_DIR
    done
 
 else
