@@ -123,7 +123,7 @@ please be patient with it!
 The images I used for demonstration purposes in this repository are the following:
 * <a href='https://pngtree.com/so/tropical-plants'>tropical plants png from pngtree.com</a>
 * <a href='https://www.freepik.com/vectors/floral'>Floral vector created by Harryarts - www.freepik.com</a>
-* Hand drawn arrow by Marcel Dornis from the Noun Project for the array used in the reddit post on [r/bash](https://reddit.com/r/bash)
+* [Hand drawn arrow](https://thenounproject.com/term/hand-drawn-arrow/1724691) by Marcel Dornis from [the Noun Project](https://thenounproject.com) for the array used in the reddit post on [r/bash](https://reddit.com/r/bash)
 
 ## Code used
 
