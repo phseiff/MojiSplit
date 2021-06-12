@@ -140,7 +140,7 @@ split_individual_emoji_sheet() {
      # resize to the size we want:
      size_minus_padding=$(((PXSIZE - PADDING * 2) * factor / PXSIZE))
      size=$((PXSIZE * factor / PXSIZE))
-     echo "size minus padding: $size_minus_padding; size: $size"
+     # echo "size minus padding: $size_minus_padding; size: $size"
      convert -background none "$OUT_DIR/$INPUTNAME.$seg.png" -resize "${size_minus_padding}x${size_minus_padding}!" "$OUT_DIR/$INPUTNAME.$seg.png";
      # add margin:
      convert -background none "$OUT_DIR/$INPUTNAME.$seg.png" -gravity center -extent "${size}x${size}"  "$OUT_DIR/$INPUTNAME.$seg.png";
@@ -163,12 +163,12 @@ split_individual_emoji_sheet() {
       upper_size_bound="$PXSIZE"
       while true; do
         size_to_try=$(((upper_size_bound + lower_size_bound) / 2))
-        echo "Trying image size $size_to_try for $f."
+        # echo "Trying image size $size_to_try for $f."
         mask_to_image "$f" "$size_to_try"
         optimize_if_possible "$OUT_DIR/$INPUTNAME.$seg.png"
 
         filesize=$(stat -c%s "$OUT_DIR/$INPUTNAME.$seg.png")
-        echo "Resulting file size is $filesize."
+        # echo "Resulting file size is $filesize."
 
         if (( "$filesize" <= "$MAXSIZE" )); then
           lower_size_bound="$size_to_try"
@@ -176,7 +176,7 @@ split_individual_emoji_sheet() {
           upper_size_bound="$size_to_try"
         fi
         if (( upper_size_bound == lower_size_bound + 1 )); then
-          echo "Found a fitting size!"
+          # echo "Found a fitting size!"
           mask_to_image "$f" "$lower_size_bound"
           optimize_if_possible "$OUT_DIR/$INPUTNAME.$seg.png"
           break
