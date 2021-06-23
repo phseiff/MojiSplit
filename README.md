@@ -9,6 +9,8 @@ and you might need to make their background transparent and not forget to have a
 MojiSplit automates this process for you - you give it some images with an even background and with one or more doodles, cliparts, icons or emojis on it, and it takes on the tasks detailed above for you.
 The result is a folder full of images of the individual elements in good emoji-size with good emoji-padding.
 
+<img src="demo/example2.png" alt="A pretty example of a conversation." width="750px"/>
+
 <details><summary>Example of an image sheet (input)</summary>
 
 ![input iamge. It contains several flowers on an evenly white background](demo/input.png)
@@ -134,6 +136,9 @@ I used code from the following StackOverflow-answers and blog posts:
 * [This](https://askubuntu.com/a/594979) answer on how to fit an image into a square (including its code).
 * [This](https://stackoverflow.com/a/14203146) answer on how to extract extended arguments from the command line.
 * [This](http://redsymbol.net/articles/bash-exit-traps/) blog post on how to make cleanup functions for bash scripts.
+
+## Further reading:
+* I postet about this project [on r/bash](https://www.reddit.com/r/bash/comments/o4zidm/i_wrote_a_script_to_split_an_image_consisting_of/) on Reddit.
 
 ## License
 
