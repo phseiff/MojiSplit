@@ -1,7 +1,7 @@
 <!-- ![MojiSplit](demo/Title.png) -->
 <img src="demo/Title.png" alt="MojiSplit" width="300px">
 
-If you ever made an emoji or an emote pack (for example for mastodon, a forum or a messanger) from a stock image sheet containing multiple cliparts, you know how tedious it is:<br/>
+If you ever made an emoji or an emote pack (for example for mastodon, a forum or a messenger) from a stock image sheet containing multiple cliparts, you know how tedious it is:<br/>
 You need to separate all of them from each other (which might be more difficult than just using a rectangle selection tool and cutting if they are somehow entangled);
 you need to crop them all to 512px (or whatever size your system needs);
 and you might need to make their background transparent and not forget to have a 16px (or smth) margin around the image.
@@ -13,7 +13,7 @@ The result is a folder full of images of the individual elements in good emoji-s
 
 <details><summary>Example of an image sheet (input)</summary>
 
-![input iamge. It contains several flowers on an evenly white background](demo/input.png)
+![input image. It contains several flowers on an evenly white background](demo/input.png)
 
 `input.png`
 </details>
@@ -34,7 +34,7 @@ The result is a folder full of images of the individual elements in good emoji-s
 
 **The output images**:
 * transparent background.
-* 512x512 px large (a power of two and exactly the size that Signal messanger wants for stickers, coincidentally).
+* 512x512 px large (a power of two and exactly the size that Signal messenger wants for stickers, coincidentally).
 * 16px padding between their border and the border of their contents.
 
 (there are options to customize most of this)
