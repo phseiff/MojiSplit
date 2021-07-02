@@ -151,6 +151,7 @@ I used code from the following StackOverflow-answers and blog posts:
 
 ## Further reading:
 * I postet about this project [on r/bash](https://www.reddit.com/r/bash/comments/o4zidm/i_wrote_a_script_to_split_an_image_consisting_of/) on Reddit.
+* I made more or less the same post (different comments, though) [on r/coolgithubprojects](https://www.reddit.com/r/coolgithubprojects/comments/obo7o8/i_wrote_a_script_to_split_an_image_consisting_of/).
 
 ## License
 
